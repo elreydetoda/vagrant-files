@@ -1,0 +1,10 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "jhcook/fedora27"
+  # allow applications to be open through ssh
+  config.ssh.forward_x11 = true
+  # config how I like
+  config.vm.provision "shell", path: "prov.sh"
+end
