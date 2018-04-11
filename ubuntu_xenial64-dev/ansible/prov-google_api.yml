@@ -1,0 +1,22 @@
+---
+- hosts: all
+  become: yes
+  vars:
+          os_packages:
+                  - python2.7
+                  - python-pip
+                  - ansible
+          pip_packages:
+                  - pip
+                  - google-api-python-client
+                  - httplib2
+  tasks:
+          - name: installing os packages
+            package:
+                    name: '{{ os_packages }}'
+                    state: present
+          - name: installing pip packages
+            pip:
+                    name: '{{ pip_packages }}'
+                    state: latest
+...

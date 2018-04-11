@@ -1,0 +1,51 @@
+---
+- hosts: all
+  become: yes
+  vars:
+          userz: vagrant
+          dev_location: '/coding/49th/lab/admin-scripts/linux/rsa-pull'
+          packages:
+                  - screen
+
+  pre_tasks:
+          - name: updating deb base packages
+            apt:
+                    update_cache: yes
+            when: ansible_os_family == "Debian"
+
+          - name: updating rhel base packages
+            yum:
+                    update_cache: yes
+            when: ansible_os_family == "RedHat"
+
+          - name: updating arch base packages
+            yum:
+                    update_cache: yes
+            when: ansible_os_family == "Archlinux"
+
+  tasks:
+          - name: installing base packages
+            package:
+                    name: '{{ packages }}'
+                    state: present
+
+          - name: setting up customization for .inputrc
+            lineinfile:
+                    path: /home/{{userz}}/.inputrc
+                    owner: vagrant
+                    create: yes
+                    line: 'set editing-mode vi'
+
+          - name: setting up customization for .bashrc
+            lineinfile:
+                    path: /home/{{userz}}/.bashrc
+                    owner: vagrant
+                    create: yes
+                    line: "alias screen='screen -q'"
+          - name: setting up customization for .bashrc
+            lineinfile:
+                    path: /home/{{userz}}/.bashrc
+                    owner: vagrant
+                    create: yes
+                    line: "alias dev='cd {{ dev_location }}'"
+...
