@@ -1,0 +1,19 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/xenial64"
+  config.vm.synced_folder "~/src/", "/coding", create: true
+  # install python so ansible is happy
+  config.vm.provision :ansible do |ansible|
+    ansible.playbook = "ansible_prov/pre-prov.yml"
+  end
+  # actually provision the machine to how I like
+  config.vm.provision :ansible do |ansible|
+    ansible.playbook = "ansible_prov/prov.yml"
+  end
+  # customization per project (change the * to the project name)
+  config.vm.provision :ansible do |ansible|
+    ansible.playbook = "ansible_prov/prov-google_api.yml"
+  end
+end
