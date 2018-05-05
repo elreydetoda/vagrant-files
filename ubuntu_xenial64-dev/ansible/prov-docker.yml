@@ -1,0 +1,21 @@
+---
+- hosts: all
+  become: yes
+  vars:
+          - docker_script_url: 'https://get.docker.com'
+          - docker_script_path: '/opt/get-docker.sh'
+          - docker_user: vagrant
+  tasks:
+          - name: downloading docker script from get.docker.com
+            get_url:
+                    url: '{{ docker_script_url }}'
+                    dest: '{{ docker_script_path }}'
+                    owner: '{{ docker_user }}'
+          - name: installing docker with official docker script
+            script: '{{ docker_script_path }}'
+          - name: adding user to docker group
+            user:
+                    name: '{{ docker_user }}'
+                    group: docker
+                    append: yes
+...
