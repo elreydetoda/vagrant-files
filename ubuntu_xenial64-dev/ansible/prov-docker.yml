@@ -5,17 +5,37 @@
           - docker_script_url: 'https://get.docker.com'
           - docker_script_path: '/opt/get-docker.sh'
           - docker_user: vagrant
+          - os_pkg:
+                  python3-pip
+          - python_pkg:
+                  - pip
+                  - asciinema
   tasks:
           - name: downloading docker script from get.docker.com
             get_url:
                     url: '{{ docker_script_url }}'
                     dest: '{{ docker_script_path }}'
                     owner: '{{ docker_user }}'
+                    mode: 0777
+          - name: installing python3 pip
+            package:
+                    name: '{{ os_pkg }}'
+                    state: present
+          - name: install asciinema for recording
+            pip:
+                    name: '{{ python_pkg }}'
+                    executable: pip3
+                    state: latest
+          - name: checking if docker is installed (ignore error)
+            command: grep docker /etc/group
+            register: docker_check
+            ignore_errors: True
           - name: installing docker with official docker script
-            script: '{{ docker_script_path }}'
+            command: '{{ docker_script_path }}'
+            when: docker_check is failed
           - name: adding user to docker group
             user:
                     name: '{{ docker_user }}'
-                    group: docker
+                    groups: docker
                     append: yes
 ...
