@@ -1,1 +1,5 @@
 tools/*
+
+# for all vim swap files
+*.swp
+*.swo
