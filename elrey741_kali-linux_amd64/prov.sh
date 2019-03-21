@@ -9,3 +9,4 @@ apt-get dist-upgrade -y -o Dpkg::Options::='--force-confnew'
 ## metasploit
 # initializing the msf db
 msfdb init
+systemctl enable postgresql
