@@ -10,3 +10,5 @@ apt-get dist-upgrade -y -o Dpkg::Options::='--force-confnew'
 # initializing the msf db
 msfdb init
 systemctl enable postgresql
+systemctl start docker
+systemctl enable docker
