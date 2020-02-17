@@ -1,5 +1,11 @@
+## ignore all general folders that don't want to share
+# with git (i.e. your tools or ctf data)
+ctfs/*
 tools/*
 
 # for all vim swap files
 *.swp
 *.swo
+
+# ignoring all log files
+*.log
