@@ -23,4 +23,5 @@ systemctl enable --now docker
 
 if [[ -f "${bash_prompt}" ]] ; then
   cat "${bash_prompt}" >> ~vagrant/.bashrc
+  echo "set editing-mode vi" >> ~vagrant/.inputrc
 fi
