@@ -11,7 +11,8 @@ bash_prompt="${customization_folder}/bash_prompt"
 apt-get update
 apt-get dist-upgrade -y -o Dpkg::Options::='--force-confnew'
 apt-get install -y \
-  vim-gtk3
+  vim-gtk3 \
+  glances
 
 ## metasploit
 # initializing the msf db
