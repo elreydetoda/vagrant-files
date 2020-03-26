@@ -9,8 +9,9 @@ bash_prompt="${customization_folder}/bash_prompt"
 ## system base
 # getting the most up to date packages from the last package
 apt-get update
-apt-get upgrade -y -o Dpkg::Options::='--force-confnew'
 apt-get dist-upgrade -y -o Dpkg::Options::='--force-confnew'
+apt-get install -y \
+  vim-gtk3
 
 ## metasploit
 # initializing the msf db
@@ -23,5 +24,10 @@ systemctl enable --now docker
 
 if [[ -f "${bash_prompt}" ]] ; then
   cat "${bash_prompt}" >> ~vagrant/.bashrc
-  echo "set editing-mode vi" >> ~vagrant/.inputrc
 fi
+
+# setting my preference of using vim mode with bash
+printf 'set editing-mode vi\n' >> ~vagrant/.inputrc
+
+# setting my favorite editor (because of clipboard support)
+sudo -u vagrant update-alternatives --set editor /usr/bin/vim.gtk3
