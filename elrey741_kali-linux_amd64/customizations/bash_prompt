@@ -1,2 +1,6 @@
 # custom bash prompt
 export PS1='\[\e[33m\][\[\e[m\]\[\e[32m\]\D{%F %T}\[\e[m\]] \[\e[33m\][\[\e[m\]\[\e[31m\]\u\[\e[m\]@\[\e[34m\]\h\[\e[m\]: \[\e[36m\]\w\[\e[m\]\[\e[33m\] ]\[\e[m\]\n\[\033[01;31m\]\$\[\033[00m\] '
+
+# making bash write immediatly
+# https://askubuntu.com/questions/67283/is-it-possible-to-make-writing-to-bash-history-immediate#answer-67306
+shopt -s histappend
