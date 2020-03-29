@@ -1,0 +1,101 @@
+- hosts: all
+  become: yes
+  tasks:
+
+  - name: installing all packages
+    block:
+
+      - name: remove docker to use docker snap later
+        apt:
+          state: absent
+          name:
+            - docker-ce
+
+      - name: installing apt packages
+        apt:
+          state: present
+          name:
+            - vim-gtk3
+            - glances
+            - jq
+            - snapd
+            - xclip
+
+      - name: updating kali
+        apt:
+          autoremove: yes
+
+      - name: installing normal snap packages
+        snap:
+          name:
+            - docker
+            - postman
+
+      - name: installing classic snap packages
+        snap:
+          classic: yes
+          name:
+            - go
+            - code
+
+  - name: adding docker deps
+    block:
+
+      - name: adding docker group
+        group:
+          system: yes
+          name: docker
+
+      - name: adding vagrant to docker group
+        user:
+          name: vagrant
+          groups: docker
+          append: yes
+
+  - name: configuring other customizations
+    block:
+
+      - name: check if msfdb has been initialized
+        stat:
+          path: /usr/share/metasploit-framework/config/database.yml
+        register: msfdb_result
+
+      - name: initializing metasploit framework
+        command: msfdb init
+        when: not msfdb_result.stat.exists
+
+      - name: enabling and starting other services
+        systemd:
+          enabled: yes
+          state: started
+          name: "{{ item }}"
+        loop:
+          - postgresql
+          - snap.docker.dockerd.service
+
+      - name: setting vim as editor
+        alternatives:
+          name: editor
+          path: /usr/bin/vim.gtk3
+
+      - name: configuring home settings
+        block:
+
+          - name: configuring bash settings
+            block:
+
+              - name: copy custom PS1 prompt
+                copy:
+                  src: ./bash_prompt
+                  dest: ~vagrant/.bash_aliases
+                  owner: vagrant
+                  group: vagrant
+                  mode: 0644
+              
+              - name: set vi mode for bash
+                copy:
+                  content: 'set editing-mode vi'
+                  dest: ~vagrant/.inputrc
+                  owner: vagrant
+                  group: vagrant
+                  mode: 0644

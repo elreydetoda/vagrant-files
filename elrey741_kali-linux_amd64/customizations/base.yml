@@ -1,0 +1,26 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+
+  - name: updating kali
+    apt:
+      update_cache: yes
+      upgrade: dist
+      dpkg_options: 'force-confnew'
+      autoremove: yes
+
+  - name: installing snapd
+    apt:
+      state: present
+      name:
+        - snapd
+
+  - name: enabling and starting snap deps
+    systemd:
+      enabled: yes
+      state: started
+      name: "{{ item }}"
+    loop:
+      - snapd
+      - apparmor
