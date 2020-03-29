@@ -1,18 +1,48 @@
 #!/usr/bin/env bash
 
+##################################################
+## Variables
 # non-interactive for apt-get
 export DEBIAN_FRONTEND='noninteractive'
 shared_folder='/vagrant'
 customization_folder="${shared_folder}/customizations"
 bash_prompt="${customization_folder}/bash_prompt"
 
+apt_pkgs=(
+  'vim-gtk3' # my personal preference: https://blog.elreydetoda.site/vim-clipboard-over-ssh/
+  'glances' # use as system monitor
+  'jq' # used for parsing json
+  'snapd' # used for installing tools
+  'xclip' # used for clipboard access over x11
+)
+
+snap_pkgs_classic=(
+  'go' # for different go offensive tools
+  'code' # for code editing/analyzing from searchsploit
+)
+
+snap_pkgs=(
+  'docker' # used for tools
+  'postman' # API testing tool
+)
+
+##################################################
+
 ## system base
 # getting the most up to date packages from the last package
 apt-get update
 apt-get dist-upgrade -y -o Dpkg::Options::='--force-confnew'
-apt-get install -y \
-  vim-gtk3 \
-  glances
+
+## extras
+# installing all apt based tools
+apt-get install -y "${apt_pkgs[*]}"
+
+snap install "${snap_pkgs[*]}"
+
+# installing all snap based tools
+for snap in "${snap_pkgs_classic[@]}" ; do
+  snap install "${snap}" --classic
+done
 
 ## metasploit
 # initializing the msf db
@@ -22,6 +52,9 @@ systemctl enable postgresql
 
 # starting docker and enabling
 systemctl enable --now docker
+
+# starting and enabling all snapd deps
+systemctl enable --now snapd apparmor
 
 if [[ -f "${bash_prompt}" ]] ; then
   cat "${bash_prompt}" >> ~vagrant/.bashrc
