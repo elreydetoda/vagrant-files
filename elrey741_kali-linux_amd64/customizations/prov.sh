@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+# debug
+set -x
+
 ##################################################
 ## Variables
 # non-interactive for apt-get
@@ -35,9 +39,12 @@ apt-get dist-upgrade -y -o Dpkg::Options::='--force-confnew'
 
 ## extras
 # installing all apt based tools
-apt-get install -y "${apt_pkgs[*]}"
+apt-get install -y "${apt_pkgs[@]}"
 
-snap install "${snap_pkgs[*]}"
+# starting and enabling all snapd deps
+systemctl enable --now snapd apparmor
+
+snap install "${snap_pkgs[@]}"
 
 # installing all snap based tools
 for snap in "${snap_pkgs_classic[@]}" ; do
@@ -53,9 +60,6 @@ systemctl enable postgresql
 # starting docker and enabling
 systemctl enable --now docker
 
-# starting and enabling all snapd deps
-systemctl enable --now snapd apparmor
-
 if [[ -f "${bash_prompt}" ]] ; then
   cat "${bash_prompt}" >> ~vagrant/.bashrc
 fi
@@ -64,4 +68,4 @@ fi
 printf 'set editing-mode vi\n' >> ~vagrant/.inputrc
 
 # setting my favorite editor (because of clipboard support)
-sudo -u vagrant update-alternatives --set editor /usr/bin/vim.gtk3
+update-alternatives --set editor /usr/bin/vim.gtk3
