@@ -64,6 +64,9 @@
         command: msfdb init
         when: not msfdb_result.stat.exists
 
+      - name: update nmap script db
+        command: nmap --script-updatedb
+
       - name: enabling and starting other services
         systemd:
           enabled: yes
@@ -91,11 +94,22 @@
                   owner: vagrant
                   group: vagrant
                   mode: 0644
-              
-              - name: set vi mode for bash
+
+              - name: set vi mode for bash but Ctrl + l
                 copy:
-                  content: 'set editing-mode vi'
                   dest: ~vagrant/.inputrc
                   owner: vagrant
                   group: vagrant
                   mode: 0644
+                  content: |
+                    set editing-mode vi
+                    $if mode=vi
+
+                    set keymap vi-command
+                    # these are for vi-command mode
+                    Control-l: clear-screen
+
+                    set keymap vi-insert
+                    # these are for vi-insert mode
+                    Control-l: clear-screen
+                    $endif
