@@ -22,7 +22,7 @@ vagrant ssh
 
 - Internally at [Secure Ideas](https://elrey.casa/work) ([ProfessionallyEvil](https://professionallyevil.com/))
   - slides: [https://elrey.casa/v-prez](https://elrey.casa/v-prez) (live link: [https://elrey.casa/v-prez-lv](https://elrey.casa/v-prez-lv))
-    [![slide deck thumbnail](https://s3.amazonaws.com/media-p.slid.es/thumbnails/41c5277ec680de1b6c8578f8eff94a76/thumb.jpg?1589829741)](https://elrey.casa/v-prez)
+    [![slide deck thumbnail](https://s3.amazonaws.com/media-p.slid.es/thumbnails/41c5277ec680de1b6c8578f8eff94a76/thumb.jpg?1589829741 =700x500)](https://elrey.casa/v-prez)
   - asciinema recording (with timestamps) shown in presenation
     [![asciicast](https://asciinema.org/a/331673.svg)](https://asciinema.org/a/331673)
   - youtube video (coming soon!)
