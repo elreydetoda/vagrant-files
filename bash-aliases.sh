@@ -17,3 +17,9 @@ alias v-revert_prov_conn='vagrant snapshot pop --no-delete --provision && vagran
 alias v-config="grep -vP '^\s+#|^#|^$' Vagrantfile"
 alias v-aliases="grep '^alias v-' ~/.zshrc"
 alias v-edit="${EDITOR} Vagrantfile && v-config | sha1sum | sudo tee Vagrantfile.sha1"
+function v-stop_all(){
+	# stop all running vagrant boxes
+  for i in $(vagrant global-status | grep -oP '\srunning\s+/.*' | cut -d ' ' -f 4-) ; do
+		pushd $i || return 1 && vagrant halt && popd
+	done
+}
