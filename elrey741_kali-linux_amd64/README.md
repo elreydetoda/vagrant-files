@@ -2,6 +2,22 @@
 
 The above title is the vagrant box this folder is based off of (which is mine and gets built from this repo: [https://github.com/elreydetoda/packer-kali_linux/](https://github.com/elreydetoda/packer-kali_linux/)), and my personal cusomizations that I have set for this box.
 
+## basic commands to use this box
+
+```shell
+vagrant up
+vagrant ssh
+```
+
+### currently supported hypervisors
+
+- virtualbox
+- vmware
+- planned supported hypervisors
+  - qemu
+  - hyper-v
+  - aws
+
 ## Presentations
 
 - Internally at [Secure Ideas](https://elrey.casa/work) ([ProfessionallyEvil](https://professionallyevil.com/))
