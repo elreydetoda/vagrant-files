@@ -21,6 +21,6 @@ alias v-edit="${EDITOR} Vagrantfile && v-config | sha1sum | sudo tee Vagrantfile
 function v-stop_all(){
   # stop all running vagrant boxes
   for box in $(vagrant global-status | grep -oP '\srunning\s+/.*' | cut -d ' ' -f 4-) ; do
-		pushd "${box}" || return 1 && vagrant halt && popd || return 1
-	done
+    pushd "${box}" || return 1 && vagrant halt && popd || return 1
+  done
 }
