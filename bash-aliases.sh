@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 alias v-connect_insecure="vagrant up && vagrant ssh"
 alias v-connect="diff <(v-config | sha1sum ) <( cat Vagrantfile.sha1 ) && vagrant up && vagrant ssh || echo 'shasum mismatch check your Vagrantfile' && sleep 3 && ${EDITOR} Vagrantfile"
 alias v-connect_no_prov="diff <(v-config | sha1sum ) <( cat Vagrantfile.sha1 ) && vagrant up --no-provision && vagrant ssh || echo 'shasum mismatch check your Vagrantfile' && sleep 3 && ${EDITOR} Vagrantfile"
@@ -18,8 +19,8 @@ alias v-config="grep -vP '^\s+#|^#|^$' Vagrantfile"
 alias v-aliases="grep '^alias v-' ~/.zshrc"
 alias v-edit="${EDITOR} Vagrantfile && v-config | sha1sum | sudo tee Vagrantfile.sha1"
 function v-stop_all(){
-	# stop all running vagrant boxes
-  for i in $(vagrant global-status | grep -oP '\srunning\s+/.*' | cut -d ' ' -f 4-) ; do
-		pushd $i || return 1 && vagrant halt && popd
+  # stop all running vagrant boxes
+  for box in $(vagrant global-status | grep -oP '\srunning\s+/.*' | cut -d ' ' -f 4-) ; do
+		pushd "${box}" || return 1 && vagrant halt && popd || return 1
 	done
 }
