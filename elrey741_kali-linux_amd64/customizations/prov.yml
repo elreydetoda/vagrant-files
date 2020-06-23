@@ -20,6 +20,7 @@
             - jq
             - snapd
             - xclip
+            - python3-pip
 
       - name: updating kali
         apt:

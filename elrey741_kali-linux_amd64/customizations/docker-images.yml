@@ -1,0 +1,48 @@
+- hosts: all
+  become: yes
+  tasks:
+
+    - name: prep for pulling docker images
+      vars:
+        pipenv_file_dir: '/vagrant/customizations'
+      block:
+
+        - name: installing pipenv
+          pip:
+            name: pipenv
+            executable: pip3
+
+        - name: installing python deps with pipenv
+          # modified from: https://github.com/pypa/pipenv/issues/363#issuecomment-420936475
+          command: 'pipenv install --deploy --system'
+          args:
+            chdir: '{{ pipenv_file_dir }}'
+
+
+    - name: pulling docker images
+      vars:
+        docker_cmd_path: '/snap/bin/docker'
+      block:
+
+        - name: adding images wanted to register
+          args:
+            executable: /bin/bash
+          # specify the parenthesis in the bash shell so that all output is directed together from all commands
+          #   so, all images are outputed to stdout_lines
+          # weird curely braces is because of this:
+          #   https://stackoverflow.com/questions/32279519/escaping-double-curly-braces-in-ansible#answer-32283447
+          shell: |
+            (
+              '{{ docker_cmd_path }}' search --format '{{ '{{' }} .Name {{ '}}' }}' gh0s7 | grep '^gh0s7/'
+            )
+          register: docker_images
+          changed_when: False
+
+        # - debug:
+        #     var: docker_images
+
+        - name: pulling all images
+          docker_image:
+            name: '{{ item }}'
+            source: pull
+          loop: '{{ docker_images.stdout_lines }}'
