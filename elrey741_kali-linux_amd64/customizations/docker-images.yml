@@ -14,7 +14,7 @@
 
         - name: installing python deps with pipenv
           # modified from: https://github.com/pypa/pipenv/issues/363#issuecomment-420936475
-          command: 'pipenv install --deploy --system'
+          command: 'pipenv install --deploy --system --skip-lock'
           args:
             chdir: '{{ pipenv_file_dir }}'
           changed_when: False
