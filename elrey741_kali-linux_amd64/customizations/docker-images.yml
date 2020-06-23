@@ -17,6 +17,7 @@
           command: 'pipenv install --deploy --system'
           args:
             chdir: '{{ pipenv_file_dir }}'
+          changed_when: False
 
 
     - name: pulling docker images
