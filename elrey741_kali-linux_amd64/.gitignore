@@ -2,6 +2,7 @@
 # with git (i.e. your tools or ctf data)
 ctfs/*
 tools/*
+!tools/ikeforce.sh
 
 # for all vim swap files
 *.swp
