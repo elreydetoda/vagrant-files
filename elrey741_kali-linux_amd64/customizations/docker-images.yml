@@ -35,8 +35,21 @@
               # weird curely braces is because of this:
               #   https://stackoverflow.com/questions/32279519/escaping-double-curly-braces-in-ansible#answer-32283447
               shell: |
+                function docker_search(){
+                  docker_image_owner="${1}"
+                  dio="${docker_image_owner}"
+                  docker_cmd='{{ docker_cmd_path }}'
+                  if [[ -n "${2}" ]] ; then
+                     ${docker_cmd} search --format '{{ '{{' }} .Name {{ '}}' }}' "${dio}" | grep "^${dio}/" | grep -vE "${2}"
+                  else
+                    ${docker_cmd} search --format '{{ '{{' }} .Name {{ '}}' }}' "${dio}" | grep "^${dio}/"
+                  fi
+                }
+                docker_owners=( 'gh0s7:qute-browser' 'elrey741:pipenv|python' )
                 (
-                  '{{ docker_cmd_path }}' search --format '{{ '{{' }} .Name {{ '}}' }}' gh0s7 | grep '^gh0s7/'
+                  for owner in "${docker_owners[@]}" ; do
+                    docker_search "${owner%:*}" "${owner#*:}"
+                  done
                 )
               register: docker_images
               changed_when: False
@@ -51,8 +64,21 @@
               # weird curely braces is because of this:
               #   https://stackoverflow.com/questions/32279519/escaping-double-curly-braces-in-ansible#answer-32283447
               shell: |
+                function docker_search(){
+                  docker_image_owner="${1}"
+                  dio="${docker_image_owner}"
+                  docker_cmd="$(which docker)"
+                  if [[ -n "${2}" ]] ; then
+                     ${docker_cmd} search --format '{{ '{{' }} .Name {{ '}}' }}' "${dio}" | grep "^${dio}/" | grep -vE "${2}"
+                  else
+                    ${docker_cmd} search --format '{{ '{{' }} .Name {{ '}}' }}' "${dio}" | grep "^${dio}/"
+                  fi
+                }
+                docker_owners=( 'gh0s7:qute-browser' 'elrey741:pipenv|python' )
                 (
-                  docker search --format '{{ '{{' }} .Name {{ '}}' }}' gh0s7 | grep '^gh0s7/'
+                  for owner in "${docker_owners[@]}" ; do
+                    docker_search "${owner%:*}" "${owner#*:}"
+                  done
                 )
               register: docker_images
               changed_when: False
