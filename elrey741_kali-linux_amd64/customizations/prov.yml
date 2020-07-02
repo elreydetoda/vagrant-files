@@ -71,6 +71,14 @@
           - name: update nmap script db
             command: nmap --script-updatedb
 
+          - name: update recon-ng marketplace
+            command: recon-ng -r /vagrant/tools/recon-ng/update-install_marketplace.rf
+            become: yes
+            become_method: su
+            become_user: vagrant
+            args:
+              creates: ~vagrant/.recon-ng/modules.yml
+
           - name: enabling and starting other services
             systemd:
               enabled: yes
