@@ -56,31 +56,34 @@
   - name: configuring other customizations
     block:
 
-      - name: check if msfdb has been initialized
-        stat:
-          path: /usr/share/metasploit-framework/config/database.yml
-        register: msfdb_result
+      - name: setting up tools
+        block:
 
-      - name: initializing metasploit framework
-        command: msfdb init
-        when: not msfdb_result.stat.exists
+          - name: check if msfdb has been initialized
+            stat:
+              path: /usr/share/metasploit-framework/config/database.yml
+            register: msfdb_result
 
-      - name: update nmap script db
-        command: nmap --script-updatedb
+          - name: initializing metasploit framework
+            command: msfdb init
+            when: not msfdb_result.stat.exists
 
-      - name: enabling and starting other services
-        systemd:
-          enabled: yes
-          state: started
-          name: "{{ item }}"
-        loop:
-          - postgresql
-          - snap.docker.dockerd.service
+          - name: update nmap script db
+            command: nmap --script-updatedb
 
-      - name: setting vim as editor
-        alternatives:
-          name: editor
-          path: /usr/bin/vim.gtk3
+          - name: enabling and starting other services
+            systemd:
+              enabled: yes
+              state: started
+              name: "{{ item }}"
+            loop:
+              - postgresql
+              - snap.docker.dockerd.service
+
+          - name: setting vim as editor
+            alternatives:
+              name: editor
+              path: /usr/bin/vim.gtk3
 
       - name: configuring home settings
         block:
