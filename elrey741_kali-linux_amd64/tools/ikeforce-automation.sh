@@ -75,26 +75,26 @@ function parse_initial_results(){
   done
 
   for ip in "${!ip_and_results[@]}" ; do
-      # printf 'ip=%s\nvalue=%s\n' "${ip}" "${ip_and_results[${ip}]}"
+    # printf 'ip=%s\nvalue=%s\n' "${ip}" "${ip_and_results[${ip}]}"
 
-      # adding to another associated array for all transforms
-      ip_and_transforms["${ip}"]="$(
+    # adding to another associated array for all transforms
+    ip_and_transforms["${ip}"]="$(
 
-        # printing out results per ip
-        printf '%s' "${ip_and_results[${ip}]}" |
+      # printing out results per ip
+      printf '%s' "${ip_and_results[${ip}]}" |
 
-        # only grep digits that match up to a ':'
-        grep -oP '\d+\s+:' |
+      # only grep digits that match up to a ':'
+      grep -oP '\d+\s+:' |
 
-        # only grep digits
-        grep -oP '\d+' |
+      # only grep digits
+      grep -oP '\d+' |
 
-        # comma delimit them
-        tr '\n' ' ' |
+      # comma delimit them
+      tr '\n' ' ' |
 
-        # remove trailing comma
-        sed 's/ $//'
-      )"
+      # remove trailing comma
+      sed 's/ $//'
+    )"
 
   done
 
