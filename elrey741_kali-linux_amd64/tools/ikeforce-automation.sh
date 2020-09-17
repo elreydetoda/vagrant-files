@@ -49,7 +49,7 @@ function initial_scan(){
   initial_tmp_folder="$(mktemp -d)"
   ikeforce_file_prefix="$(date -I )"
   ikeforce_log_file_with_prefix="${ikeforce_folder}/ikeforce-${ikeforce_file_prefix}.log"
-  ikeforce_final_log_file="${ikeforce_folder}/ikeforce_01_scan-results.log"
+  initial_final_log_file="${ikeforce_folder}/ikeforce_01_scan-results.log"
 
   mkdir -p "${ikeforce_folder}"
 
@@ -74,7 +74,7 @@ function initial_scan(){
     echo "had to manually kill jobs"
   fi
 
-  cat "${initial_tmp_folder}/"* > "${ikeforce_final_log_file}"
+  cat "${initial_tmp_folder}/"* > "${initial_final_log_file}"
 
   if [[ "${CLEANUP}" == true ]] ; then
     rm -rvf "${initial_tmp_folder}" |& tee "${ikeforce_log_file_with_prefix}"
@@ -97,7 +97,7 @@ function parse_initial_results(){
 
   mapfile -t ikeforce_ip_results < <(
     # grep only strings that have a '|' which indicates it came back with results
-    grep -B 7 '|' "${ikeforce_initial_log_file}" |
+    grep -B 7 '|' "${initial_final_log_file}" |
     grep -oP '\d+\.\d+\.\d+\.\d+(\/.\d+|)'
   )
 
@@ -113,7 +113,7 @@ function parse_initial_results(){
     ip_and_results["${valid_ip_address}"]="$(
 
       # greping for valid ip address in results
-      grep -A 7 "${valid_ip_address}" "${ikeforce_initial_log_file}" |
+      grep -A 7 "${valid_ip_address}" "${initial_final_log_file}" |
 
       # greping for results string
       grep '|'
@@ -152,26 +152,31 @@ function secondary_scan(){
   local pid_array=()
   sec_wait=30
 
-  # ikeforce_secondary_log_file_tmp="${ikeforce_secondary_log_file##*/}"
+  secondary_tmp_folder="$(mktemp -d)"
+  secondary_final_log_file="${ikeforce_folder}/ikeforce_02_scan-results.log"
 
-  rm -f "${ikeforce_secondary_log_file}"-*
-
-  sleep 5
-  time for ip in "${!ip_and_transforms[@]}" ; do
+  for ip in "${!ip_and_transforms[@]}" ; do
     # printf 'ip=%s\nvalue=%s\n' "${ip}" "${ip_and_transforms[${ip}]}"
-    current_output="${ikeforce_secondary_log_file}-${ip}"
+    current_output="${secondary_tmp_folder}/${ip}-second_ikeforce.log"
     printf 'starting scan for: %s\n' "${ip}" &>> "${current_output}"
-    ~vagrant/tools/ikeforce.sh "${ip} -e -w wordlists/groupnames.dic -t ${ip_and_transforms[${ip}]}"  &>> "${current_output}" &
+    ${path_to_ikeforce_wrapper} "${ip} -e -w wordlists/groupnames.dic -t ${ip_and_transforms[${ip}]}"  &>> "${current_output}" &
     pid_array+=( "$!")
   done 
 
   process_waiting "${pid_array[@]}"
 
+  mapfile -t docker_ids < <( docker container ls --format '{{.ID}}' )
   if ! kill -9 "${pid_array[@]}" 2>/dev/null ; then
     echo "Jobs have completed."
   else
-    echo "failed to kill jobs"
-    exit 1
+    docker rm -f "${docker_ids[@]}"
+    echo "had to manually kill jobs"
+  fi
+
+  cat "${secondary_tmp_folder}/"* > "${secondary_final_log_file}"
+
+  if [[ "${CLEANUP}" == true ]] ; then
+    rm -rvf "${secondary_tmp_folder}" |& tee -a "${ikeforce_log_file_with_prefix}"
   fi
 
 }
@@ -182,7 +187,6 @@ function process_waiting(){
 
   printf 'waiting for %d seconds\n\n' "${sec_wait}"
   wait_print "${sec_wait}"
-
 
 }
 
@@ -226,8 +230,8 @@ function main(){
   # printf '%s\n' "${host_array[@]}"
 
   initial_scan
-  # parse_initial_results
-  # secondary_scan
+  parse_initial_results
+  secondary_scan
 }
 
 if [[ "${0}" = "${BASH_SOURCE[0]}" ]] ; then
