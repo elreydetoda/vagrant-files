@@ -2,8 +2,38 @@
 
 set -${-//[s]/}eu${DEBUG+xv}o pipefail
 
-# declaring array to store transforms
-declare -A ip_and_transforms
+function parse_input(){
+
+  # check if file
+  if [[ -f "${1}" ]] ; then
+
+    # parse file passed
+    mapfile -t host_array < "${1}"
+
+  # if it's not empty
+  elif [[ -n "${1}" ]] ; then
+
+    case "${1}" in
+      *\|*)
+
+          # parse | delimited string of hosts
+          mapfile -t host_array < <( tr '|' '\n' <<< "${1}" )
+
+        ;;
+        *)
+
+          # only one host
+          host_array+=( "${1}" )
+
+        ;;
+    esac
+
+  else
+    echo 'Something weird happened...'
+    printf 'this was the value that was interpreted %s\n' "${1}"
+  fi
+
+}
 
 # TODO: make concurrency nicer to where it spits out everything to a mkdtemp -d dir and reconstructs
 #   it with a cat mktemp -d * to log file
@@ -138,9 +168,26 @@ function wait_print(){
 }
 
 function main(){
-  initial_scan
-  parse_initial_results
-  secondary_scan
+
+  if [[ $# -ne 1 ]] ; then
+
+    echo 'Please pass in ga file or ip address as input'
+    echo 'if you have multiple IP addresses, then delimit them by |'
+    exit 1
+
+  fi
+  # declaring array to store transforms
+  declare -A ip_and_transforms
+  host_array=()
+
+  parse_input "${@}"
+
+  # DEBUG
+  # printf '%s\n' "${host_array[@]}"
+
+  # initial_scan
+  # parse_initial_results
+  # secondary_scan
 }
 
 if [[ "${0}" = "${BASH_SOURCE[0]}" ]] ; then
