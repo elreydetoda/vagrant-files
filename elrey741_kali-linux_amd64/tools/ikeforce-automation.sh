@@ -42,26 +42,43 @@ function parse_input(){
 # TODO: implement this
 function initial_scan(){
 
-  ikeforce_folder='/client_data/test-data/<client_folder>'
-  ikeforce_tmp_output_folder='/client_data/test-data/<client_folder>/ikeforce-output'
+  local pid_array=()
+  sec_wait=180
+
+  ikeforce_folder="${current_folder_path}/ikeforce"
+  initial_tmp_folder="$(mktemp -d)"
   ikeforce_file_prefix="$(date -I )"
-  ikeforce_log_file_with_prefix="${ikeforce_folder}/${ikeforce_file_prefix}"
-  # ikeforce_initial_log_file="${ikeforce_log_file_with_prefix}_00_ike-scan_results.log"
-  ikeforce_initial_log_file="${ikeforce_folder}/2020-06-30_ike-scan_results.log"
-  ikeforce_secondary_log_file="${ikeforce_log_file_with_prefix}_01_ike-scan_results.log"
-  
-  # TODO: implement concurrency for this with a wait "${pid_array[@]}" at the end
-  # initial scan for valid hosts
-  # time (
-  #     for host in $(cat ike_hosts) ; do
-  #         printf 'starting scan for: %s\n' "${host}" && ~vagrant/tools/ikeforce.sh "${host} -a"
-  #     done
-  # ) |& tee "${ikeforce_initial_log_file}"
-  # time (
-  #     for i in $(cat ike_hosts ) ; do
-  #         printf 'starting scan for: %s\n' "${i}" && ~vagrant/tools/ikeforce/ikeforce.py "${i}" -a
-  #     done
-  # ) |& tee "$(date -I)_ike-scan_results_not-docker.log"
+  ikeforce_log_file_with_prefix="${ikeforce_folder}/ikeforce-${ikeforce_file_prefix}.log"
+  ikeforce_final_log_file="${ikeforce_folder}/ikeforce_01_scan-results.log"
+
+  mkdir -p "${ikeforce_folder}"
+
+  for host in "${host_array[@]}" ; do
+    printf 'starting scan for: %s\n' "${host}" |& tee -a "${initial_tmp_folder}/${host}-initial_ikeforce-scan.log"
+    ${path_to_ikeforce_wrapper} "${host} -a" &>> "${initial_tmp_folder}/${host}-initial_ikeforce-scan.log" &
+    pid_array+=( "$!" )
+  done
+
+  printf '\n\nwaiting for all processes to complete\n'
+  printf 'run this if you want to see the containers status: %s\n' 'watch -n 1 "docker container ls"'
+  # shellcheck disable=SC2016
+  printf 'if this is taking too long you can run this: %s $(%s)\n' "docker rm -f" "docker container ls --format '{{.ID}}' | tr '\n' ' '"
+
+  process_waiting "${pid_array[@]}"
+
+  mapfile -t docker_ids < <( docker container ls --format '{{.ID}}' )
+  if ! kill -9 "${pid_array[@]}" 2>/dev/null ; then
+    echo "Jobs have completed."
+  else
+    docker rm -f "${docker_ids[@]}"
+    echo "had to manually kill jobs"
+  fi
+
+  cat "${initial_tmp_folder}/"* > "${ikeforce_final_log_file}"
+
+  if [[ "${CLEANUP}" == true ]] ; then
+    rm -rvf "${initial_tmp_folder}" |& tee "${ikeforce_log_file_with_prefix}"
+  fi
 
 }
 
@@ -132,8 +149,8 @@ function parse_initial_results(){
 
 function secondary_scan(){
 
-  pid_array=()
-  local sec_wait=30
+  local pid_array=()
+  sec_wait=30
 
   # ikeforce_secondary_log_file_tmp="${ikeforce_secondary_log_file##*/}"
 
@@ -148,12 +165,25 @@ function secondary_scan(){
     pid_array+=( "$!")
   done 
 
-  printf 'waiting for %d seconds\n' "${sec_wait}"
-  wait_print "${sec_wait}"
+  process_waiting "${pid_array[@]}"
 
   if ! kill -9 "${pid_array[@]}" 2>/dev/null ; then
     echo "Jobs have completed."
+  else
+    echo "failed to kill jobs"
+    exit 1
   fi
+
+}
+
+function process_waiting(){
+  local pid_array=()
+  mapfile -t pid_array < <( printf '%s\n' "${@}" )
+
+  printf 'waiting for %d seconds\n\n' "${sec_wait}"
+  wait_print "${sec_wait}"
+
+
 }
 
 function wait_print(){
@@ -161,10 +191,15 @@ function wait_print(){
   waited=0
 
   until [[ "${waited}" -eq "${sec_wait}" ]] ; do
-    printf '.' && sleep 1 && waited=$((waited+1))
+    printf '%ds/%ds' "${waited}" "${sec_wait}" && sleep 1 && waited=$((waited+1))
+    if [[ "$(pgrep -u "${USER}" docker | wc -l)" -eq 0 ]] ; then
+      break
+    fi
+    # https://stackoverflow.com/questions/5799303/print-a-character-repeatedly-in-bash#answer-17030976
+    printf '\r' && printf '%0.s ' {1..20} && printf '\r'
   done
   
-  echo
+  printf '\n\n'
 }
 
 function main(){
@@ -179,13 +214,18 @@ function main(){
   # declaring array to store transforms
   declare -A ip_and_transforms
   host_array=()
+  current_folder_path="$(pwd -P)"
+  # DEBUG
+  CLEANUP="false"
+  CLEANUP="${CLEANUP:-true}"
+  path_to_ikeforce_wrapper="${HOME}/tools/ikeforce.sh"
 
   parse_input "${@}"
 
   # DEBUG
   # printf '%s\n' "${host_array[@]}"
 
-  # initial_scan
+  initial_scan
   # parse_initial_results
   # secondary_scan
 }
