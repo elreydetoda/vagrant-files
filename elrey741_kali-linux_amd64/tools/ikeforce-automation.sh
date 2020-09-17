@@ -38,6 +38,7 @@ function parse_input(){
 function initial_scan(){
 
   local pid_array=()
+  # TODO: make dynamic based on number of hosts
   sec_wait=300
 
   ikeforce_folder="${current_folder_path}/ikeforce"
@@ -199,6 +200,11 @@ function wait_print(){
   done
   
   printf '\n\n'
+}
+
+# TODO: implement
+function third_scan(){
+  printf
 }
 
 function main(){
