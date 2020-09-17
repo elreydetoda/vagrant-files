@@ -49,9 +49,9 @@ function parse_initial_results(){
   # Shutting down server
 
   mapfile -t ikeforce_ip_results < <(
-      # grep only strings that have a '|' which indicates it came back with results
-      grep -B 7 '|' "${ikeforce_initial_log_file}" |
-      grep -oP '\d+\.\d+\.\d+\.\d+(\/.\d+|)'
+    # grep only strings that have a '|' which indicates it came back with results
+    grep -B 7 '|' "${ikeforce_initial_log_file}" |
+    grep -oP '\d+\.\d+\.\d+\.\d+(\/.\d+|)'
   )
 
 
@@ -62,15 +62,15 @@ function parse_initial_results(){
 
   for valid_ip_address in "${ikeforce_ip_results[@]}" ; do
 
-      # adding to associated array for results per ip
-      ip_and_results["${valid_ip_address}"]="$(
+    # adding to associated array for results per ip
+    ip_and_results["${valid_ip_address}"]="$(
 
-          # greping for valid ip address in results
-          grep -A 7 "${valid_ip_address}" "${ikeforce_initial_log_file}" |
+      # greping for valid ip address in results
+      grep -A 7 "${valid_ip_address}" "${ikeforce_initial_log_file}" |
 
-          # greping for results string
-          grep '|'
-      )"
+      # greping for results string
+      grep '|'
+    )"
 
   done
 
@@ -80,20 +80,20 @@ function parse_initial_results(){
       # adding to another associated array for all transforms
       ip_and_transforms["${ip}"]="$(
 
-          # printing out results per ip
-          printf '%s' "${ip_and_results[${ip}]}" |
+        # printing out results per ip
+        printf '%s' "${ip_and_results[${ip}]}" |
 
-          # only grep digits that match up to a ':'
-          grep -oP '\d+\s+:' |
+        # only grep digits that match up to a ':'
+        grep -oP '\d+\s+:' |
 
-          # only grep digits
-          grep -oP '\d+' |
+        # only grep digits
+        grep -oP '\d+' |
 
-          # comma delimit them
-          tr '\n' ' ' |
+        # comma delimit them
+        tr '\n' ' ' |
 
-          # remove trailing comma
-          sed 's/ $//'
+        # remove trailing comma
+        sed 's/ $//'
       )"
 
   done
@@ -111,18 +111,18 @@ function secondary_scan(){
 
   sleep 5
   time for ip in "${!ip_and_transforms[@]}" ; do
-          # printf 'ip=%s\nvalue=%s\n' "${ip}" "${ip_and_transforms[${ip}]}"
-          current_output="${ikeforce_secondary_log_file}-${ip}"
-          printf 'starting scan for: %s\n' "${ip}" &>> "${current_output}"
-          ~vagrant/tools/ikeforce.sh "${ip} -e -w wordlists/groupnames.dic -t ${ip_and_transforms[${ip}]}"  &>> "${current_output}" &
-          pid_array+=( "$!")
+    # printf 'ip=%s\nvalue=%s\n' "${ip}" "${ip_and_transforms[${ip}]}"
+    current_output="${ikeforce_secondary_log_file}-${ip}"
+    printf 'starting scan for: %s\n' "${ip}" &>> "${current_output}"
+    ~vagrant/tools/ikeforce.sh "${ip} -e -w wordlists/groupnames.dic -t ${ip_and_transforms[${ip}]}"  &>> "${current_output}" &
+    pid_array+=( "$!")
   done 
 
   printf 'waiting for %d seconds\n' "${sec_wait}"
   wait_print "${sec_wait}"
 
   if ! kill -9 "${pid_array[@]}" 2>/dev/null ; then
-      echo "Jobs have completed."
+    echo "Jobs have completed."
   fi
 }
 
@@ -131,7 +131,7 @@ function wait_print(){
   waited=0
 
   until [[ "${waited}" -eq "${sec_wait}" ]] ; do
-      printf '.' && sleep 1 && waited=$((waited+1))
+    printf '.' && sleep 1 && waited=$((waited+1))
   done
   
   echo
