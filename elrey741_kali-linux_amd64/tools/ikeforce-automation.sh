@@ -35,15 +35,10 @@ function parse_input(){
 
 }
 
-# TODO: make concurrency nicer to where it spits out everything to a mkdtemp -d dir and reconstructs
-#   it with a cat mktemp -d * to log file
-# TODO: then there is a cleanup function to rm -rf "${folder_array[@]}" if fail or when finish
-
-# TODO: implement this
 function initial_scan(){
 
   local pid_array=()
-  sec_wait=180
+  sec_wait=300
 
   ikeforce_folder="${current_folder_path}/ikeforce"
   initial_tmp_folder="$(mktemp -d)"
@@ -220,7 +215,7 @@ function main(){
   host_array=()
   current_folder_path="$(pwd -P)"
   # DEBUG
-  CLEANUP="false"
+  # CLEANUP="false"
   CLEANUP="${CLEANUP:-true}"
   path_to_ikeforce_wrapper="${HOME}/tools/ikeforce.sh"
 
