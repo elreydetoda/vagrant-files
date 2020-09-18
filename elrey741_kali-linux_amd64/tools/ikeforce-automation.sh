@@ -93,12 +93,12 @@ function parse_initial_results(){
 
   mapfile -t ikeforce_ip_results < <(
     # grep only strings that have a '|' which indicates it came back with results
-    grep -B 7 '|' "${initial_final_log_file}" |
+    grep -B 9 '|' "${initial_final_log_file}" |
     grep -oP '\d+\.\d+\.\d+\.\d+(\/.\d+|)'
   )
 
 
-  # echo "${ikeforce_ip_results[@]}"
+  echo "${ikeforce_ip_results[@]}"
 
   # declaring array to store results
   declare -A ip_and_results
