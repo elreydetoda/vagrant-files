@@ -45,7 +45,7 @@
                     ${docker_cmd} search --format '{{ '{{' }} .Name {{ '}}' }}' "${dio}" | grep "^${dio}/"
                   fi
                 }
-                docker_owners=( 'gh0s7:' 'elrey741:pipenv|python' )
+                docker_owners=( 'elrey741:pipenv|python|ansible' 'gh0s7:' )
                 (
                   for owner in "${docker_owners[@]}" ; do
                     docker_search "${owner%:*}" "${owner#*:}"
@@ -74,7 +74,7 @@
                     ${docker_cmd} search --format '{{ '{{' }} .Name {{ '}}' }}' "${dio}" | grep "^${dio}/"
                   fi
                 }
-                docker_owners=( 'gh0s7:' 'elrey741:pipenv|python' )
+                docker_owners=( 'elrey741:pipenv|python|ansible' 'gh0s7:' )
                 (
                   for owner in "${docker_owners[@]}" ; do
                     docker_search "${owner%:*}" "${owner#*:}"
