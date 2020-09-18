@@ -98,7 +98,7 @@ function parse_initial_results(){
   )
 
 
-  echo "${ikeforce_ip_results[@]}"
+  # echo "${ikeforce_ip_results[@]}"
 
   # declaring array to store results
   declare -A ip_and_results
@@ -109,7 +109,7 @@ function parse_initial_results(){
     ip_and_results["${valid_ip_address}"]="$(
 
       # greping for valid ip address in results
-      grep -A 7 "${valid_ip_address}" "${initial_final_log_file}" |
+      grep -A 9 "${valid_ip_address}" "${initial_final_log_file}" |
 
       # greping for results string
       grep '|'
