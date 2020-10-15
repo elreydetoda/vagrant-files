@@ -5,11 +5,12 @@
   - name: installing all packages
     block:
 
-      - name: remove docker to use docker snap later
-        apt:
-          state: absent
-          name:
-            - docker-ce
+      # commenting out because: https://github.com/elreydetoda/packer-kali_linux/issues/44
+      # - name: remove docker to use docker snap later
+      #   apt:
+      #     state: absent
+      #     name:
+      #       - docker-ce
 
       - name: installing apt packages
         apt:
@@ -29,7 +30,8 @@
       - name: installing normal snap packages
         snap:
           name:
-            - docker
+            # commenting out because: https://github.com/elreydetoda/packer-kali_linux/issues/44
+            # - docker
             - postman
 
       - name: installing classic snap packages
@@ -86,7 +88,7 @@
               name: "{{ item }}"
             loop:
               - postgresql
-              - snap.docker.dockerd.service
+              # - snap.docker.dockerd.service
 
           - name: setting vim as editor
             alternatives:
