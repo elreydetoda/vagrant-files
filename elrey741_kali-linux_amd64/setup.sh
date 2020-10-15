@@ -22,6 +22,11 @@ function containers(){
 }
 
 function main(){
+
+  if [[ -f "Vagrantfile.client" ]] ; then
+    cp -v Vagrantfile.client Vagrantfile
+  fi
+
   prep_env
   init
   snapshot
