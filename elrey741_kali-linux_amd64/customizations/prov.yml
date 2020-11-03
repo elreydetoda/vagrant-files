@@ -117,6 +117,14 @@
                   group: vagrant
                   mode: 0644
 
+              - name: removing kali prompt
+                copy:
+                  dest: ~vagrant/.hushlogin
+                  owner: vagrant
+                  group: vagrant
+                  mode: 0644
+                  content: ""
+
               - name: set vi mode for bash but Ctrl + l
                 copy:
                   dest: ~vagrant/.inputrc
