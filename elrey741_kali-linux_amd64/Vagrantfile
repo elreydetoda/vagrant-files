@@ -83,7 +83,7 @@ Vagrant.configure("2") do |config|
   config.ssh.forward_x11 = true
 
   # disabling vbguest update, because it sucks for kali
-  config.vbguest.auto_update = false
+  # config.vbguest.auto_update = false
 
   config.vm.provision 'base', type: 'ansible_local' do |ansible|
     ansible.playbook = "customizations/base.yml"
