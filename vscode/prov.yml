@@ -1,0 +1,40 @@
+---
+- hosts: all
+  become: true
+  vars:
+    tool_name: vscode
+  tasks:
+
+    - name: vs code snap install prep
+      block:
+
+        - name: installing deps
+          apt:
+            state: present
+            name:
+              - xauth
+              - libx11-xcb1
+              - libxcb-dri3-0
+              - libasound2
+              - libnss3
+              - gnupg
+              - apt
+              - libxkbfile1
+              - libsecret-1-0
+              - libgtk-3-0
+              - libxss1
+              - libgbm1
+
+        - name: adding environment variable
+          lineinfile:
+            path: "/etc/environment"
+            regexp: '^QT_X11_NO_MITSHM='
+            line: "QT_X11_NO_MITSHM=1"
+
+    - name: installing code snap
+      block:
+
+        - name: installing snap
+          community.general.snap:
+            name: 'code'
+            classic: yes

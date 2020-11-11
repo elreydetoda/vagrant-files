@@ -1,0 +1,6 @@
+# cmd:ansible-galaxy "${ansible_type}" install -r
+
+collections:
+  # - name: ansible.builtin
+  - name: community.general
+
