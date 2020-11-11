@@ -22,8 +22,16 @@
             - snapd
             - xclip
             - python3-pip
+            - python3-venv
 
-      - name: updating kali
+      - name: installing python tools
+        pip:
+          state: present
+          name:
+            - pipenv
+            - pipx # based on @byt3bl33d3r's recommendation: https://youtu.be/ieyRV9zQd2U
+
+      - name: cleaning up kali
         apt:
           autoremove: yes
 
@@ -108,6 +116,14 @@
                   owner: vagrant
                   group: vagrant
                   mode: 0644
+
+              - name: removing kali prompt
+                copy:
+                  dest: ~vagrant/.hushlogin
+                  owner: vagrant
+                  group: vagrant
+                  mode: 0644
+                  content: ""
 
               - name: set vi mode for bash but Ctrl + l
                 copy:
