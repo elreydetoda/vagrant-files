@@ -48,6 +48,8 @@
           name:
             - go
             - code
+            - kubectl
+            - google-cloud-sdk
 
   - name: adding docker deps
     block:
@@ -80,6 +82,8 @@
 
           - name: update nmap script db
             command: nmap --script-updatedb
+            # till I figure out where this writes to
+            changed_when: False
 
           - name: update recon-ng marketplace
             command: recon-ng -r /vagrant/tools/recon-ng/update-install_marketplace.rf
