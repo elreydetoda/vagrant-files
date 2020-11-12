@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "elrey741/kali-linux_amd64"
+  config.vm.box = "bento/ubuntu-20.04"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -45,75 +45,39 @@ Vagrant.configure("2") do |config|
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
 
-  # mounting in home to handle snap 
-  config.vm.synced_folder "./tools", "/home/vagrant/tools"
-
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
   config.vm.provider "virtualbox" do |vb|
-  # Display the VirtualBox GUI when booting the machine
-  # vb.gui = true
-
-    # Customize the amount of memory on the VM:
+  #   # Display the VirtualBox GUI when booting the machine
+  #   vb.gui = true
+  #
+  #   # Customize the amount of memory on the VM:
     vb.cpus = "2"
-
-    # Customize the amount of memory on the VM:
     vb.memory = "4096"
-
-    # add bi-directional clipboard support (when forwarding X11)
-    # pre-vbox 6.1
-    # vb.customize ["modifyvm", :id, "--clipboard-mode", "bidirectional"]
-    # post-vbox 6.1
-    vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
-    vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
   end
-
+  #
   # View the documentation for the provider you are using for more
   # information on available options.
 
-  # config.vbguest.auto_update = false
   # Enable provisioning with a shell script. Additional provisioners such as
-  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
+  # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
   # documentation for more information about their specific syntax and use.
-
-  # https://computingforgeeks.com/how-to-enable-and-use-ssh-x11-forwarding-on-vagrant-instances/
-  config.ssh.forward_agent = true
-  config.ssh.forward_x11 = true
-
-  # disabling vbguest update, because it sucks for kali
-  # config.vbguest.auto_update = false
-
-  config.vm.provision 'base', type: 'ansible_local' do |ansible|
-    ansible.playbook = "customizations/base.yml"
-    ansible.install_mode = "pip"
-    ansible.extra_vars = {
-      ansible_python_interpreter: "/usr/bin/env python3"
-    }
-  end
-
-  config.vm.provision :reload, run: "once"
-
-  config.vm.provision 'normal', type: 'ansible_local' do |ansible|
-    ansible.playbook = "customizations/prov.yml"
-    ansible.install_mode = "pip"
-    ansible.extra_vars = {
-      ansible_python_interpreter: "/usr/bin/env python3"
-    }
-  end
-
-  config.vm.provision 'docker-images', type: 'ansible_local', run: 'never' do |ansible|
-    ansible.playbook = "customizations/docker-images.yml"
-    ansible.install_mode = "pip"
-    # ansible.verbose = 'vvv'
-    ansible.extra_vars = {
-      ansible_python_interpreter: "/usr/bin/env python3"
-    }
-  end
-  # config.vm.provision "shell", path: "customizations/prov.sh"
   # config.vm.provision "shell", inline: <<-SHELL
   #   apt-get update
   #   apt-get install -y apache2
   # SHELL
+  config.ssh.forward_agent = true
+  config.ssh.forward_x11 = true
+	config.vm.provision 'vscode', type: 'ansible_local' do |ansible|
+    ansible.playbook = 'prov.yml'
+    ansible.galaxy_role_file = "requirements.yml"
+    ansible.galaxy_command = "sudo ansible-galaxy collection install -r %{role_file} --force && sudo ansible-galaxy role install -r %{role_file} --force"
+    ansible.version = 'latest'
+    ansible.install_mode = 'pip'
+    ansible.extra_vars = {
+      ansible_python_interpreter: "/usr/bin/env python3"
+    }
+  end
 end
