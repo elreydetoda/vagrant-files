@@ -93,7 +93,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision 'base', type: 'ansible_local' do |ansible|
     ansible.playbook = "customizations/base.yml"
-    ansible.install_mode = "pip"
+    ansible.install_mode = "pip3"
     ansible.extra_vars = {
       ansible_python_interpreter: "/usr/bin/env python3"
     }
@@ -103,7 +103,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision 'normal', type: 'ansible_local' do |ansible|
     ansible.playbook = "customizations/prov.yml"
-    ansible.install_mode = "pip"
+    ansible.install_mode = "pip3"
     ansible.extra_vars = {
       ansible_python_interpreter: "/usr/bin/env python3"
     }
@@ -111,7 +111,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision 'docker-images', type: 'ansible_local', run: 'never' do |ansible|
     ansible.playbook = "customizations/docker-images.yml"
-    ansible.install_mode = "pip"
+    ansible.install_mode = "pip3"
     # ansible.verbose = 'vvv'
     ansible.extra_vars = {
       ansible_python_interpreter: "/usr/bin/env python3"
