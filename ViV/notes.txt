@@ -1,0 +1,28 @@
+# I have aliases for vagrant here: elrey.casa/info/v-aliases
+#   you can copy the url above if you pause the video
+v-config
+# I am on my baremetal machine right now
+hostname -f
+# we start up the first baremetal vm
+vagrant up --provider libvirt
+# as you can see I am still on my baremetal machine
+hostname -f
+# now connect to the vm
+vagrant ssh
+# now I am inside the first vm
+hostname -f
+# now we create the second vagrant vm
+vagrant init bento/ubuntu-20.04
+# start up the internal vm
+vagrant up
+# now connect
+vagrant ssh
+# as you can see I am in the second layer vm
+hostname -f
+# :D 
+exit
+# back in first layer vm
+hostname -f
+exit
+# baremetal
+hostname -f

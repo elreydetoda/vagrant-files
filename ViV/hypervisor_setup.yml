@@ -1,0 +1,26 @@
+---
+- hosts: all
+  become: yes
+  collections:
+    - elreydetoda.virtualization
+  pre_tasks:
+    - name: updating cache
+      apt:
+        update_cache: yes
+      when: ansible_facts['os_family'] == "Debian"
+  tasks:
+
+    - name: installation of virtualbox
+      include_role:
+        name: virtualbox
+
+    - name: install vagrant
+      include_role:
+        name: vagrant
+
+    - name: installing extra packages
+      package:
+        state: present
+        name:
+          - screen
+          - tmux
