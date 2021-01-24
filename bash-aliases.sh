@@ -1,5 +1,4 @@
-#!/usr/bin/env bash
-alias v-connect="if diff <(v-config | sha1sum ) <( cat Vagrantfile.sha1 ) ; then vagrant up && case \${v_headless} in ; true) extra_cmds=( '-c' 'exit') ;; *) extra_cmds=() ;; esac ; vagrant ssh \${extra_cmds[@]} || return 1 ; else echo 'shasum mismatch check your Vagrantfile' && sleep 3 && ${EDITOR} Vagrantfile ; return 1 ; fi "
+alias v-connect="vagrant up && case \${v_headless} in ; true) extra_cmds=( '-c' 'exit') ;; *) extra_cmds=() ;; esac ; vagrant ssh \${extra_cmds[@]} || return 1"
 alias v-newz='vagrant destroy -f && vagrant up'
 alias v-newz_up='vagrant destroy -f && vagrant box update && v-connect'
 alias v-snap_conn='vagrant halt && vagrant snapshot push && v-connect'
@@ -14,4 +13,3 @@ alias v-config="grep -vP '^\s+#|^#|^$' Vagrantfile"
 alias v-aliases="alias | grep '^v-'"
 alias v-aliases_wanted="grep '^alias v-' ~/.zshrc"
 alias v-edit="${EDITOR} Vagrantfile && v-config | sha1sum | sudo tee Vagrantfile.sha1"
-alias v-stop_all="vagrant global-status | grep -oP '.*\srunning\s+/.*' | cut -d ' ' -f 1 | xargs -I {} -n 1 vagrant halt '{}'"
