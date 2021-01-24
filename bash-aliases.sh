@@ -12,4 +12,4 @@ alias v-revert_prov_conn='vagrant snapshot pop --no-delete --provision && vagran
 alias v-config="grep -vP '^\s+#|^#|^$' Vagrantfile"
 alias v-aliases="alias | grep '^v-'"
 alias v-aliases_wanted="grep '^alias v-' ~/.zshrc"
-alias v-edit="${EDITOR} Vagrantfile && v-config | sha1sum | sudo tee Vagrantfile.sha1"
+alias v-edit="${EDITOR} Vagrantfile"
