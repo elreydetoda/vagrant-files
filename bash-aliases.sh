@@ -14,9 +14,4 @@ alias v-config="grep -vP '^\s+#|^#|^$' Vagrantfile"
 alias v-aliases="alias | grep '^v-'"
 alias v-aliases_wanted="grep '^alias v-' ~/.zshrc"
 alias v-edit="${EDITOR} Vagrantfile && v-config | sha1sum | sudo tee Vagrantfile.sha1"
-function v-stop_all(){
-  # stop all running vagrant boxes
-  for box in $(vagrant global-status | grep -oP '\srunning\s+/.*' | cut -d ' ' -f 4-) ; do
-    pushd "${box}" || return 1 && vagrant halt && popd || return 1
-  done
-}
+alias v-stop_all="vagrant global-status | grep -oP '.*\srunning\s+/.*' | cut -d ' ' -f 1 | xargs -I {} -n 1 vagrant halt '{}'"
