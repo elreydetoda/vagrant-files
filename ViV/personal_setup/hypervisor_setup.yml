@@ -57,11 +57,11 @@
     - name: .bashrc alterations
       lineinfile:
         path: ~vagrant/.bashrc
-        regexp: '^pushd'
-        line: 'pushd /vagrant'
+        regexp: '{{ item.regexp }}'
+        line: '{{ item.line }}'
       loop:
         - { regexp: '^pushd', line: 'pushd /vagrant' }
-        - { regexp: '^source "${HOME}"/.bash.d/', line: 'source "${HOME}"/.bash.d/*' }
+        - { regexp: '^source .*\.bash\.d/', line: 'source "${HOME}"/.bash.d/*' }
 
     - name: creating .bash.d dir
       file:
