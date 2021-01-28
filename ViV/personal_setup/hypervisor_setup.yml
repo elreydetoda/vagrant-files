@@ -1,0 +1,79 @@
+---
+- hosts: all
+  become: yes
+  collections:
+    - elreydetoda.virtualization
+
+  pre_tasks:
+    - name: updating cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_facts['os_family'] == "Debian"
+
+  tasks:
+
+    - name: installation of virtualbox
+      include_role:
+        name: virtualbox
+
+    - name: install vagrant
+      include_role:
+        name: vagrant
+
+    - name: install docker
+      include_role:
+        name: docker
+      vars:
+        docker_users:
+          - vagrant
+
+    - name: installing extra packages
+      package:
+        state: present
+        name:
+          - screen
+          - tmux
+
+    - name: set vi mode for bash but Ctrl + l
+      copy:
+        dest: ~vagrant/.inputrc
+        owner: vagrant
+        group: vagrant
+        mode: 0644
+        content: |
+          set editing-mode vi
+          $if mode=vi
+
+          set keymap vi-command
+          # these are for vi-command mode
+          Control-l: clear-screen
+
+          set keymap vi-insert
+          # these are for vi-insert mode
+          Control-l: clear-screen
+          $endif
+
+    - name: .bashrc alterations
+      lineinfile:
+        path: ~vagrant/.bashrc
+        regexp: '^pushd'
+        line: 'pushd /vagrant'
+      loop:
+        - { regexp: '^pushd', line: 'pushd /vagrant' }
+        - { regexp: '^source "${HOME}"/.bash.d/', line: 'source "${HOME}"/.bash.d/*' }
+
+    - name: creating .bash.d dir
+      file:
+          state: directory
+          path: ~vagrant/.bash.d/
+
+    - name: grabbing my bash aliases for vagrant
+      get_url:
+        dest: ~vagrant/.bash.d/vagrant-aliases.sh
+        url: 'https://raw.githubusercontent.com/elreydetoda/vagrant-files/master/bash-aliases.sh'
+        backup: yes
+        owner: vagrant
+        group: vagrant
+        mode: 0644
+
