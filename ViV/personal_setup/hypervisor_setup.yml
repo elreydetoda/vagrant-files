@@ -67,6 +67,9 @@
       file:
           state: directory
           path: ~vagrant/.bash.d/
+          owner: vagrant
+          group: vagrant
+          mode: '0755'
 
     - name: grabbing my bash aliases for vagrant
       get_url:
