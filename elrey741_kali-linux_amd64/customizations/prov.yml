@@ -1,5 +1,18 @@
 - hosts: all
   become: yes
+  pre_tasks:
+    # https://github.com/elreydetoda/vagrant-files/issues/7
+    - name: configuring folder
+      file:
+        path: '{{ item }}'
+        owner: vagrant
+        group: vagrant
+        mode: '755'
+        recurse: yes
+        state: directory
+      loop:
+        - ~vagrant/tools/
+        - /client_data/
   tasks:
 
   - name: installing all packages
@@ -147,3 +160,4 @@
                     # these are for vi-insert mode
                     Control-l: clear-screen
                     $endif
+
