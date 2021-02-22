@@ -70,7 +70,7 @@ Vagrant.configure("2") do |config|
   # SHELL
   config.ssh.forward_agent = true
   config.ssh.forward_x11 = true
-	config.vm.provision 'vscode', type: 'ansible_local' do |ansible|
+  config.vm.provision 'vscode', type: 'ansible_local' do |ansible|
     ansible.playbook = 'prov.yml'
     ansible.galaxy_role_file = "requirements.yml"
     ansible.galaxy_command = "sudo ansible-galaxy collection install -r %{role_file} --force && sudo ansible-galaxy role install -r %{role_file} --force"

@@ -1,4 +1,4 @@
-alias v-connect="vagrant up && case \${v_headless} in ; true) extra_cmds=( '-c' 'exit') ;; *) extra_cmds=() ;; esac ; vagrant ssh \${extra_cmds[@]} || return 1"
+alias v-connect="vagrant up && case \${v_headless} in true) extra_cmds=( '-c' 'exit') ;; *) extra_cmds=() ;; esac ; vagrant ssh \${extra_cmds[@]} || return 1"
 alias v-newz='vagrant destroy -f && vagrant up'
 alias v-newz_up='vagrant destroy -f && vagrant box update && v-connect'
 alias v-snap_conn='vagrant halt && vagrant snapshot push && v-connect'
