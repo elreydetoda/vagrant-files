@@ -22,8 +22,43 @@
 
     - name: pulling docker images
       vars:
+        containers:
+          - name: elrey741
+            excluded_images:
+              - pipenv
+              - python
+              - ansible
+              - jython
+          - name: gh0s7
+            excluded_images:
+              -
+          - name: frohoff
+            excluded_images:
+              - '!ysoserial'
+        docker_search_script: |
+          function docker_search(){
+            docker_image_owner="${1}"
+            dio="${docker_image_owner}"
+            docker_cmd='{{ docker_cmd_path }}'
+            set -x
+            if [[ "${2}" == "None" ]] ; then
+               ${docker_cmd} search --format '{{ '{{' }} .Name {{ '}}' }}' "${dio}" | grep "^${dio}/"
+            elif grep '!' <<< "${2}" > /dev/null ; then
+               ${docker_cmd} search --format '{{ '{{' }} .Name {{ '}}' }}' "${dio}" | grep "^${dio}/" | grep "${2#*!}"
+            else
+               ${docker_cmd} search --format '{{ '{{' }} .Name {{ '}}' }}' "${dio}" | grep "^${dio}/" | grep -vE "${2}"
+            fi
+          }
+          (
+            docker_search '{{ item.name }}' "{{ item.excluded_images | join('|') | default('None') }}"
+          )
         docker_cmd_path: '/snap/bin/docker'
       block:
+
+        # - debug:
+        #     msg: "container name: {{ item.name }} with excluded_images: {{ item.excluded_images | join('|') | default() }}"
+        #   #   var: item
+        #   loop: '{{ containers }}'
 
         - name: handling docker pathing....
           block:
@@ -34,25 +69,10 @@
               #   so, all images are outputed to stdout_lines
               # weird curely braces is because of this:
               #   https://stackoverflow.com/questions/32279519/escaping-double-curly-braces-in-ansible#answer-32283447
-              shell: |
-                function docker_search(){
-                  docker_image_owner="${1}"
-                  dio="${docker_image_owner}"
-                  docker_cmd='{{ docker_cmd_path }}'
-                  if [[ -n "${2}" ]] ; then
-                     ${docker_cmd} search --format '{{ '{{' }} .Name {{ '}}' }}' "${dio}" | grep "^${dio}/" | grep -vE "${2}"
-                  else
-                    ${docker_cmd} search --format '{{ '{{' }} .Name {{ '}}' }}' "${dio}" | grep "^${dio}/"
-                  fi
-                }
-                docker_owners=( 'elrey741:pipenv|python|ansible|jython' 'gh0s7:' 'frohoff:' )
-                (
-                  for owner in "${docker_owners[@]}" ; do
-                    docker_search "${owner%:*}" "${owner#*:}"
-                  done
-                )
+              shell: '{{ docker_search_script }}'
               register: docker_images
               changed_when: False
+              loop: '{{ containers }}'
 
           rescue:
 
@@ -63,31 +83,20 @@
               #   so, all images are outputed to stdout_lines
               # weird curely braces is because of this:
               #   https://stackoverflow.com/questions/32279519/escaping-double-curly-braces-in-ansible#answer-32283447
-              shell: |
-                function docker_search(){
-                  docker_image_owner="${1}"
-                  dio="${docker_image_owner}"
-                  docker_cmd="$(which docker)"
-                  if [[ -n "${2}" ]] ; then
-                     ${docker_cmd} search --format '{{ '{{' }} .Name {{ '}}' }}' "${dio}" | grep "^${dio}/" | grep -vE "${2}"
-                  else
-                    ${docker_cmd} search --format '{{ '{{' }} .Name {{ '}}' }}' "${dio}" | grep "^${dio}/"
-                  fi
-                }
-                docker_owners=( 'elrey741:pipenv|python|ansible|jython' 'gh0s7:' 'frohoff:' )
-                (
-                  for owner in "${docker_owners[@]}" ; do
-                    docker_search "${owner%:*}" "${owner#*:}"
-                  done
-                )
+              shell: '{{ docker_search_script }}'
+              vars:
+                docker_cmd_path: 'docker'
               register: docker_images
               changed_when: False
+              loop: '{{ containers }}'
 
         # - debug:
-        #     var: docker_images
+        #     msg: '{{ item }}'
+        #   loop: "{{ docker_images.results | map(attribute='stdout_lines') | list |flatten }}"
 
         - name: pulling all images
           docker_image:
             name: '{{ item }}'
             source: pull
-          loop: '{{ docker_images.stdout_lines }}'
+          # modified from: https://groups.google.com/g/ansible-project/c/QUugEQRZT-g/m/bYOjM_k3BQAJ
+          loop: "{{ docker_images.results | map(attribute='stdout_lines') | list |flatten }}"
