@@ -73,7 +73,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision 'vscode', type: 'ansible_local' do |ansible|
     ansible.playbook = 'prov.yml'
     ansible.galaxy_role_file = "requirements.yml"
-    ansible.galaxy_command = "sudo ansible-galaxy collection install -r %{role_file} --force && sudo ansible-galaxy role install -r %{role_file} --force"
+    ansible.galaxy_command = "ansible-galaxy collection install -r %{role_file} --force && ansible-galaxy role install -r %{role_file} --force"
     ansible.version = 'latest'
     ansible.install_mode = 'pip'
     ansible.extra_vars = {
