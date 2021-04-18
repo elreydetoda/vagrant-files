@@ -1,0 +1,47 @@
+---
+- hosts: all
+  # become: true
+  # vars:
+  #   tool_name: vscode
+  pre_tasks:
+    - name: updating cache
+      become: true
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+  tasks:
+
+    - name: installing pipenv env deps
+      import_role:
+        name: elreydetoda.pipenv.pipenv_init
+      vars:
+        pip_path: '/usr/local/bin/pip3'
+
+    - name: installing pipenv env
+      import_role:
+        name: elreydetoda.pipenv.pipenv
+      vars:
+        dev_env: true
+        project_root: '/home/vagrant/vagrant/'
+
+    - name: installing pipenv env
+      import_role:
+        name: elreydetoda.pipenv.pyenv
+
+    - name: install docker
+      import_role:
+        name: elreydetoda.virtualization.docker
+      vars:
+        snap_version: true
+        docker_users:
+          - vagrant
+
+    - name: install extra packages
+      package:
+        name: '{{ item }}'
+        state: present
+      loop:
+        - 'jq'
+        - 'bash-completion'
+        - 'unzip'

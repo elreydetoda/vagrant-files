@@ -1,0 +1,10 @@
+# cmd:ansible-galaxy "${ansible_type}" install -r
+# i.e.:ansible-galaxy collection install -r
+# i.e.:ansible-galaxy roll install -r
+
+collections:
+  - name: elreydetoda.virtualization
+  - name: elreydetoda.pipenv
+  # - name: community.general
+
+roles:
