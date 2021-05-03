@@ -29,6 +29,9 @@
               - python
               - ansible
               - jython
+              - rssaggregated
+              - code-server_java
+              - trygit
           - name: gh0s7
             excluded_images:
               -
