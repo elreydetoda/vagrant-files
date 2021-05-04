@@ -1,18 +1,22 @@
 - hosts: all
+  vars:
+    provisioning_user: root
+    provisioning_group: root
+    provisioning_user_home_dir: /root
   become: yes
-  pre_tasks:
-    # https://github.com/elreydetoda/vagrant-files/issues/7
-    - name: configuring folder
-      file:
-        path: '{{ item }}'
-        owner: vagrant
-        group: vagrant
-        mode: '755'
-        recurse: yes
-        state: directory
-      loop:
-        - ~vagrant/tools/
-        - /client_data/
+  # pre_tasks:
+  #   # https://github.com/elreydetoda/vagrant-files/issues/7
+  #   - name: configuring folder
+  #     file:
+  #       path: '{{ item }}'
+  #       owner: vagrant
+  #       group: vagrant
+  #       mode: '755'
+  #       recurse: yes
+  #       state: directory
+  #     loop:
+  #       - ~vagrant/tools/
+  #       - /client_data/
   tasks:
 
   - name: installing all packages
@@ -72,9 +76,9 @@
           system: yes
           name: docker
 
-      - name: adding vagrant to docker group
+      - name: adding provisioning user to docker group
         user:
-          name: vagrant
+          name: '{{ ansible_user_id }}'
           groups: docker
           append: yes
 
@@ -100,11 +104,11 @@
 
           - name: update recon-ng marketplace
             command: recon-ng -r /vagrant/tools/recon-ng/update-install_marketplace.rf
-            become: yes
-            become_method: su
-            become_user: vagrant
+            # become: yes
+            # become_method: su
+            # become_user: '{{ ansible_user_id }}'
             args:
-              creates: ~vagrant/.recon-ng/modules.yml
+              creates: '{{ provisioning_user_home_dir }}/.recon-ng/modules.yml'
 
           - name: enabling and starting other services
             systemd:
@@ -121,32 +125,56 @@
               path: /usr/bin/vim.gtk3
 
       - name: configuring home settings
+        vars:
+          shells:
+              - zsh
+              - bash
+          customizations_dir: '{{ provisioning_user_home_dir }}/.{{ item }}.d'
         block:
+
+          - name: creating .d folders for bash & zsh for extra stuff
+            file:
+              path: '{{ customizations_dir }}'
+              state: directory
+              mode: 0644
+              owner: '{{ provisioning_user }}'
+              group: '{{ provisioning_group }}'
+            loop: '{{ shells }}'
+
+          - name: telling shells to source new folder
+            lineinfile:
+              path: '{{ provisioning_user_home_dir }}/.{{ item }}rc'
+              regexp: '^source ~/.{{ item }}.d/\*$'
+              line: 'source ~/.{{ item }}.d/*'
+              owner: '{{ provisioning_user }}'
+              group: '{{ provisioning_group }}'
+            loop: '{{ shells }}'
 
           - name: configuring bash settings
             block:
 
               - name: copy custom PS1 prompt
                 copy:
-                  src: ./bash_prompt
-                  dest: ~vagrant/.bash_aliases
-                  owner: vagrant
-                  group: vagrant
+                  src: './{{ item }}_prompt'
+                  dest: '{{ customizations_dir }}/{{ item }}_prompt'
+                  owner: '{{ provisioning_user }}'
+                  group: '{{ provisioning_group }}'
                   mode: 0644
+                loop: '{{ shells }}'
 
               - name: removing kali prompt
                 copy:
-                  dest: ~vagrant/.hushlogin
-                  owner: vagrant
-                  group: vagrant
+                  dest: '{{ provisioning_user_home_dir }}/.hushlogin'
+                  owner: '{{ provisioning_user }}'
+                  group: '{{ provisioning_group }}'
                   mode: 0644
                   content: ""
 
               - name: set vi mode for bash but Ctrl + l
                 copy:
-                  dest: ~vagrant/.inputrc
-                  owner: vagrant
-                  group: vagrant
+                  dest: '{{ provisioning_user_home_dir }}/.inputrc'
+                  owner: '{{ provisioning_user }}'
+                  group: '{{ provisioning_group }}'
                   mode: 0644
                   content: |
                     set editing-mode vi
@@ -161,3 +189,27 @@
                     Control-l: clear-screen
                     $endif
 
+          # no longer getting used by default
+          # - name: adding extra bash stuff
+          #   block:
+                
+
+          - name: adding extra zsh stuff
+            block:
+                
+              - name: adding aliases
+                lineinfile:
+                  path: '/home/vagrant/.zshrc'
+                  regexp: '{{ item.regexp }}'
+                  line: '{{ item.line }}'
+                  owner: vagrant
+                  group: vagrant
+                loop:
+                  - {
+                      regexp: '^alias auto-root-x11="xauth list',
+                      line: "alias auto-root-x11=\"xauth list | awk '{print \\$3}' | xargs -I {} sudo xauth add \"${DISPLAY}\" . {}\"",
+                    }
+                  - {
+                      regexp: '^alias auto-rootz="sudo --preserve-env',
+                      line: 'alias auto-rootz="sudo --preserve-env=DISPLAY -i"',
+                    }

@@ -1,0 +1,4 @@
+# https://zsh-prompt-generator.site/ for this
+#PROMPT=$'[%D %*] [%n@%m: %~ ]\n# '
+# then disected the colors from kali's theme and https://stackoverflow.com/a/2534676
+PROMPT=$'%F{%(#.yellow.yellow)}[%F{%(#.green.green)}%D %*%F{%(#.yellow.yellow)}] [%F{%(#.red.blue)}%n%F{%(#.white.white)}@%F{%(#.red.blue)}%m%F{%(#.white.white)}: %F{%(#.green.green)}%~ %F{%(#.yellow.yellow)}]\n%F{%(#.red.magenta)}# %F{reset}'
