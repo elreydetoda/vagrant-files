@@ -1,0 +1,62 @@
+---
+- hosts: all
+  become: yes
+  collections:
+    - elreydetoda.virtualization
+  pre_tasks:
+    - name: updating cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_facts['os_family'] == "Debian"
+  tasks:
+
+    - name: installation of virtualbox
+      include_role:
+        name: kvm
+
+    - name: installation of virtualbox
+      include_role:
+        name: vagrant
+
+    - name: installing extra packages
+      package:
+        state: present
+        name:
+          - screen
+          - tmux
+          - libxslt-dev
+          - libxml2-dev
+          - libvirt-dev
+          - zlib1g-dev
+          - ruby-dev
+          - libguestfs-tools
+          - build-essential
+
+    - name: installing extra vagrant plugin
+      become: yes
+      become_user: vagrant
+      command:
+        cmd: vagrant plugin install vagrant-libvirt
+        creates: ~vagrant/.vagrant.d/plugins.json
+
+    - name: adding vagrant to libvirt group
+      user:
+        append: yes
+        groups: libvirt
+        name: vagrant
+
+    - name: copying Vagrantfile over
+      copy:
+        src: Vagrantfile.vm_host
+        dest: Vagrantfile
+        mode: '0644'
+        owner: vagrant
+        group: vagrant
+
+    - name: pull vagrant box
+      become: yes
+      become_user: vagrant
+      command:
+        cmd: vagrant box add --provider libvirt generic/ubuntu2004
+        creates: ~vagrant/.vagrant.d/boxes/generic-VAGRANTSLASH-ubuntu2004/
