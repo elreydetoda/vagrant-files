@@ -3,7 +3,7 @@
 # https://elrey.casa/bash/scripting/harden
 set -${-//[sc]/}eu${DEBUG+xv}o pipefail
 
-# short url: https://git.io/JZOgH
+# short url: https://git.io/JnAHD
 
 function prep(){
   rm -f livehosts_n_ports
