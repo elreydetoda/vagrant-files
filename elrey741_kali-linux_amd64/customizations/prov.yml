@@ -40,6 +40,7 @@
             - xclip
             - python3-pip
             - python3-venv
+            - eyewitness
 
       - name: installing python tools
         pip:
