@@ -68,6 +68,7 @@ Vagrant.configure("2") do |config|
     # post-vbox 6.1
     vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
     vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
   end
 
   config.ssh.forward_x11 = true
