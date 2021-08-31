@@ -34,7 +34,6 @@
           state: present
           name:
             - vim-gtk3
-            - glances
             - jq
             - snapd
             - xclip
