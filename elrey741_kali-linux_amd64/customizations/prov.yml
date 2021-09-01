@@ -52,21 +52,21 @@
         apt:
           autoremove: yes
 
-      - name: installing normal snap packages
-        snap:
-          name:
-            # commenting out because: https://github.com/elreydetoda/packer-kali_linux/issues/44
-            # - docker
-            - postman
+      # - name: installing normal snap packages
+      #   snap:
+      #     name:
+      #       # commenting out because: https://github.com/elreydetoda/packer-kali_linux/issues/44
+      #       # - docker
+      #       - postman
 
-      - name: installing classic snap packages
-        snap:
-          classic: yes
-          name:
-            - go
-            - code
-            - kubectl
-            - google-cloud-sdk
+      # - name: installing classic snap packages
+      #   snap:
+      #     classic: yes
+      #     name:
+      #       - go
+      #       - code
+      #       - kubectl
+      #       - google-cloud-sdk
 
   - name: adding docker deps
     block:
