@@ -14,6 +14,13 @@ Vagrant.configure("2") do |config|
   # boxes at https://vagrantcloud.com/search.
   config.vm.box = "commando-vm/commando-vm"
 
+  # making a modification to load a Vagrantfile.local if it exists
+  #   this will let me add local modifications if I need to outside of this repo
+  # https://stackoverflow.com/a/53490858
+  local_mods = './Vagrantfile.local'
+  # https://stackoverflow.com/a/35769926
+  eval File.read(local_mods) if File.exists?(local_mods)
+
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.
