@@ -78,8 +78,8 @@ Vagrant.configure("2") do |config|
   #   apt-get install -y apache2
   # SHELL
   config.vm.provision 'base', type: 'ansible_local' do |ansible|
-    ansible.playbook = 'prov-playbook.yml'
-    ansible.galaxy_role_file = "requirements.yml"
+    ansible.playbook = 'prov-vagrant/prov-playbook.yml'
+    ansible.galaxy_role_file = "prov-vagrant/requirements.yml"
     ansible.galaxy_command = "ansible-galaxy collection install -r %{role_file} --force && ansible-galaxy role install -r %{role_file} --force"
     ansible.pip_install_cmd = "curl -fsSL https://git.io/Jt9mk | sudo bash -xs"
     ansible.version = 'latest'
